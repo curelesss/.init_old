@@ -56,3 +56,51 @@
       when: missing_lines | length > 0
       tags:
         - mirrorlist
+
+    - name: 2] Update pacman.conf - Color
+      replace:
+        path: /etc/pacman.conf
+        regexp: '^#Color'
+        replace: 'Color'
+      tags:
+        - pacman
+
+    - name: 2] Update pacman.conf - ParallelDownload
+      replace:
+        path: /etc/pacman.conf
+        regexp: '^#ParallelDownloads = 5'
+        replace: 'ParallelDownloads = 5'
+      tags:
+        - pacman
+
+    - name: 2] Update pacman.conf - VerbosePkgLists
+      replace:
+        path: /etc/pacman.conf
+        regexp: '^#VerbosePkgLists'
+        replace: 'VerbosePkgLists'
+      tags:
+        - pacman
+
+    - name: 2] Update pacman.conf - ILoveCandy
+      lineinfile:
+        path: /etc/pacman.conf
+        line: "ILoveCandy"
+        insertafter: "# Misc options"
+        state: present
+      tags:
+        - pacman
+
+    - name: 2] Update pamcam.conf - multilib
+      replace:
+        path: /etc/pacman.conf
+        regexp: "^#\\[multilib\\]\\n#Include = /etc/pacman.d/mirrorlist"
+        replace: "[multilib]\nInclude = /etc/pacman.d/mirrorlist"
+      tags:
+        - pacman
+
+    - name: 2] Pacman Update & Upgrade
+      pacman:
+        update_cache: yes
+        upgrade: yes
+      tags:
+        - pacman
