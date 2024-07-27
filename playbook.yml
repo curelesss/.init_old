@@ -228,17 +228,17 @@
         - yay
         - yay.ansible
 
-    - name: 6] Check .setup directory
+    - name: Check .dotfiles directory
       stat:
-        path: ~/.setup
-      register: setup_folder
+        path: ~/.dotfiles
+      register: dotfiles_folder
       tags:
-        - clone
+        - dotfile
 
-    - name: 6] Clone .setup repository
+    - name: Clone .dotfiles repository <dotfile.clone.dotfiles>
       git:
         repo: git@github.com:curelesss/.setup.git
         dest: "~/.setup"
-      when: setup_folder.stat.exists == False
+      when: dotfiles_folder.stat.exists == False
       tags:
-        - clone
+        - dotfile
