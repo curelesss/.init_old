@@ -8,14 +8,14 @@
 
   tasks:
     
-    - name: Check Mirror List Backup File <1>
+    - name: 1] Check Mirror List Backup File 
       stat:
         path: /etc/pacman.d/mirrorlist.backup
       register: mirrorlist_backup
       tags:
         - mirrorlist
 
-    - name: Backup Mirror list <1>
+    - name: 1] Backup Mirror list 
       copy:
         src: /etc/pacman.d/mirrorlist
         dest: /etc/pacman.d/mirrorlist.backup
@@ -23,14 +23,14 @@
       tags:
         - mirrorlist
 
-    - name: Check current mirrorlist content <1>
+    - name: 1] Read the mirrorlist file
       ansible.builtin.slurp:
         src: /etc/pacman.d/mirrorlist
       register: mirrorlist
       tags:
         - mirrorlist
 
-    - name: Define required mirrorlist content <1>
+    - name: 1] Define required mirrorlist content
       ansible.builtin.set_fact:
         required_lines:
           - 'Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch'
@@ -40,14 +40,19 @@
       tags:
         - mirrorlist
 
-    - name: Update mirrorlist if needed <1>
+    - name: 1] Check if required lines are present
+      ansible.builtin.set_fact:
+        missing_lines: "{{ required_lines | difference(mirrorlist.content | b64decode | split('\n')) }}"
+      tags:
+        - mirrorlist
+
+    - name: 1] Update mirrorlist if needed
       ansible.builtin.copy:
         dest: /etc/pacman.d/mirrorlist
         content: |
           {% for line in required_lines %}
           {{ line }}
           {% endfor %}
-      when: >
-        mirrorlist.content | b64decode | splitlines() | difference(required_lines) | length > 0
+      when: missing_lines | length > 0
       tags:
         - mirrorlist
