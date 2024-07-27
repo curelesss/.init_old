@@ -239,6 +239,6 @@
       git:
         repo: git@github.com:curelesss/.setup.git
         dest: "~/.setup"
-      when: setup.stat.exists == False
+      when: setup_folder.stat.exists == False
       tags:
         - clone
