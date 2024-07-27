@@ -149,10 +149,81 @@
         - github
 
     - name: 3] Install openssh
-      become: yes
       pacman:
         name: openssh
         state: present
       tags:
         - ssh
         - github
+
+    - name: 4] Set Grub to Output System Loading Info <grub>
+      ansible.builtin.replace:
+        path: /etc/default/grub
+        regexp: '^(\s*)GRUB_CMDLINE_LINUX_DEFAULT=.*$'
+        replace: '\1GRUB_CMDLINE_LINUX_DEFAULT=""'
+      tags:
+        - grub
+
+    - name: 4] Update GRUB configuration
+      ansible.builtin.command:
+        cmd: grub-mkconfig -o /boot/grub/grub.cfg
+      tags:
+        - grub
+          
+    - name: 5] Check Yay directory
+      stat:
+        path: ~/yay
+      register: yay_folder
+      tags:
+        - yay  
+
+    - name: 5] Clone Yay
+      git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: "~/yay"
+      when: yay_folder.stat.exists == False
+      tags:
+        - yay
+      
+      # dependency for building yay
+    - name: 5] Install debugedit
+      pacman:
+        name: debugedit
+        state: present
+      tags:
+        - yay
+
+    - name: 5] Build and Install Yay
+      command:
+        chdir: "~/yay"
+        cmd: "makepkg -sfi --noconfirm"
+        creates: /usr/bin/yay
+      tags:
+        - yay
+
+    - name: 5] Install collection community.network
+      community.general.ansible_galaxy_install:
+        type: collection
+        name: kewlfft.aur
+      tags:
+        - yay
+
+    - name: 5] Create the `aur_builder` user
+      ansible.builtin.user:
+        name: aur_builder
+        create_home: yes
+        group: wheel
+      tags:
+        - yay
+        - yay.ansible
+
+    - name: 5] Allow the `aur_builder` user to run `sudo pacman` without a password
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers.d/11-install-aur_builder
+        line: 'aur_builder ALL=(ALL) NOPASSWD: /usr/bin/pacman'
+        create: yes
+        mode: 0644
+        validate: 'visudo -cf %s'
+      tags:
+        - yay
+        - yay.ansible
