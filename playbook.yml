@@ -1,0 +1,53 @@
+- name: Arch Init Playbook
+  gather_facts: no
+  hosts: localhost
+  become: yes
+  vars:
+      source_key: "ssh/id_rsa"
+      dest_key: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa"
+
+  tasks:
+    
+    - name: Check Mirror List Backup File <1>
+      stat:
+        path: /etc/pacman.d/mirrorlist.backup
+      register: mirrorlist_backup
+      tags:
+        - mirrorlist
+
+    - name: Backup Mirror list <1>
+      copy:
+        src: /etc/pacman.d/mirrorlist
+        dest: /etc/pacman.d/mirrorlist.backup
+      when: not mirrorlist_backup.stat.exists
+      tags:
+        - mirrorlist
+
+    - name: Check current mirrorlist content <1>
+      ansible.builtin.slurp:
+        src: /etc/pacman.d/mirrorlist
+      register: mirrorlist
+      tags:
+        - mirrorlist
+
+    - name: Define required mirrorlist content <1>
+      ansible.builtin.set_fact:
+        required_lines:
+          - 'Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch'
+          - 'Server = https://mirrors.tuna.tsinghua.edu.cn/archlinux/$repo/os/$arch'
+          - 'Server = http://mirrors.163.com/archlinux/$repo/os/$arch'
+          - 'Server = http://mirrors.aliyun.com/archlinux/$repo/os/$arch'
+      tags:
+        - mirrorlist
+
+    - name: Update mirrorlist if needed <1>
+      ansible.builtin.copy:
+        dest: /etc/pacman.d/mirrorlist
+        content: |
+          {% for line in required_lines %}
+          {{ line }}
+          {% endfor %}
+      when: >
+        mirrorlist.content | b64decode | splitlines() | difference(required_lines) | length > 0
+      tags:
+        - mirrorlist
