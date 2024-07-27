@@ -104,3 +104,55 @@
         upgrade: yes
       tags:
         - pacman
+
+    - name: 3] git user.email
+      git_config:
+        name: user.email
+        scope: global
+        value: "curelesss@gmail.com"
+      tags:
+        - git
+        - github
+
+    - name: 3] git user.name
+      git_config:
+        name: user.name
+        scope: global
+        value: "curelesss"
+      tags:
+        - git
+        - github
+
+    - name: 3] Ensure .ssh directory exists
+      file:
+        dest: "{{ dest_key | dirname }}"
+        mode: 0700
+        state: directory
+      tags:
+        - ssh
+        - github
+
+    - name: 3] Install ssh key
+      copy:
+        src: "{{ source_key }}"
+        dest: "{{ dest_key }}"
+        mode: 0600
+      tags:
+        - ssh
+        - github
+
+    - name: 3] Install git config
+      ansible.builtin.command:
+        cmd: cp ssh/config "{{ lookup('env', 'HOME') }}/.ssh/"
+      tags:
+        - ssh
+        - github
+
+    - name: 3] Install openssh
+      become: yes
+      pacman:
+        name: openssh
+        state: present
+      tags:
+        - ssh
+        - github
