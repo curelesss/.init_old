@@ -227,3 +227,18 @@
       tags:
         - yay
         - yay.ansible
+
+    - name: 6] Check .setup directory
+      stat:
+        path: ~/.setup
+      register: setup_folder
+      tags:
+        - clone
+
+    - name: 6] Clone .setup repository
+      git:
+        repo: git@github.com:curelesss/.setup.git
+        dest: "~/.setup"
+      when: setup.stat.exists == False
+      tags:
+        - clone
