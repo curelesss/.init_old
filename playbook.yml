@@ -244,14 +244,14 @@
         - yay
         - yay.ansible
 
-    - name: Check .setup directory
+    - name: 6] 目录检查 [Check .setup directory
       stat:
         path: ~/.setup
       register: setup_folder
       tags:
         - clone
 
-    - name: Clone .setup repository
+    - name: 6] 克隆库 [Clone .setup repository
       git:
         repo: git@github.com:curelesss/.setup.git
         dest: "~/.setup"
