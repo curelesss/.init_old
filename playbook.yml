@@ -167,7 +167,7 @@
         - ssh
         - github
 
-    - name: 4] Set Grub to Output System Loading Info <grub>
+    - name: 4] Set Grub to Output System Loading Info
       become: yes
       ansible.builtin.replace:
         path: /etc/default/grub
@@ -183,59 +183,37 @@
       tags:
         - grub
           
-    # - name: 5] Check Yay directory
-    #   stat:
-    #     path: ~/yay
-    #   register: yay_folder
-    #   tags:
-    #     - yay  
-
-    # - name: 5] Clone Yay
-    #   git:
-    #     repo: https://aur.archlinux.org/yay-bin.git
-    #     dest: "~/yay"
-    #     update: yes
-    #     force: yes
-    #   # when: yay_folder.stat.exists == False
-    #   tags:
-    #     - yay
-    #   
-    #   # dependency for building yay
-    # - name: 5] Install debugedit
-    #   become: yes
-    #   pacman:
-    #     name: debugedit
-    #     state: present
-    #   tags:
-    #     - yay
-    #
-    # - name: 5] Build and Install Yay
-    #   command:
-    #     chdir: "~/yay"
-    #     cmd: "makepkg -sfi --noconfirm"
-    #     creates: /usr/bin/yay
-    #   tags:
-    #     - yay
-
-    - name: Gather package facts
-      ansible.builtin.pacman_facts:
-      register: pacman_facts
-
-    - name: Delete ~/yay directory if yay is installed
-      ansible.builtin.file:
-        path: "{{ ansible_env.HOME }}/yay"
-        state: absent
-      when: "'yay' in pacman_facts.packages"
+    - name: 5] Check Yay directory
+      stat:
+        path: ~/yay
+      register: yay_folder
       tags:
-        - cleanup
+        - yay  
 
-    - name: Install yay if not present
-      ansible.builtin.package:
-        name: yay
+    - name: 5] Clone Yay
+      git:
+        repo: https://aur.archlinux.org/yay-bin.git
+        dest: "~/yay"
+      when: yay_folder.stat.exists == False
+      tags:
+        - yay
+      
+      # dependency for building yay
+    - name: 5] Install debugedit
+      become: yes
+      pacman:
+        name: debugedit
         state: present
-      when: "'yay' not in pacman_facts.packages"
       tags:
-        - installation
+        - yay
+
+    - name: 5] Build and Install Yay
+      command:
+        chdir: "~/yay"
+        cmd: "makepkg -sfi --noconfirm"
+        creates: /usr/bin/yay
+      tags:
+        - yay
 
     - name: 5] Install collection community.network
       community.general.ansible_galaxy_install:
