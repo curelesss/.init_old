@@ -280,8 +280,8 @@
       git:
         repo: git@github.com:curelesss/.setup.git
         dest: "~/.setup"
-      update: yes
-      force: yes
+        update: yes
+        force: yes
       when: setup_folder.stat.exists == False
       tags:
         - clone
