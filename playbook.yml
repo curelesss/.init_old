@@ -115,6 +115,31 @@
       tags:
         - pacman
 
+    - name: 4.1] 安装字体 [Install fonts
+      become: yes
+      become_user: aur_builder
+      kewlfft.aur.aur:
+        use: yay
+        state: present
+        name: "{{ item }}"
+      loop: "{{ packages }}"
+      vars:
+        packages:
+          - fontconfig
+          - noto-fonts
+          - noto-fonts-cjk
+          - noto-fonts-emoji
+          - noto-fonts-extra
+      tags:
+        - font
+        - setup
+
+    - name: 4.2] 刷新字体缓存 [Refresh font cache
+      command: fc-cache -fv
+      tags:
+        - font
+        - setup
+
     - name: 3] git user.email
       git_config:
         name: user.email
@@ -244,17 +269,19 @@
         - yay
         - yay.ansible
 
-    - name: 6] 目录检查 [Check .setup directory
-      stat:
-        path: ~/.setup
-      register: setup_folder
-      tags:
-        - clone
+    # - name: 6] 目录检查 [Check .setup directory
+    #   stat:
+    #     path: ~/.setup
+    #   register: setup_folder
+    #   tags:
+    #     - clone
 
     - name: 6] 克隆库 [Clone .setup repository
       git:
         repo: git@github.com:curelesss/.setup.git
         dest: "~/.setup"
+      update: yes
+      force: yes
       when: setup_folder.stat.exists == False
       tags:
         - clone
