@@ -216,6 +216,7 @@
     #     creates: /usr/bin/yay
     #   tags:
     #     - yay
+
     - name: Gather package facts
       ansible.builtin.pacman_facts:
       register: pacman_facts
