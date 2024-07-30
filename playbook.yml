@@ -115,6 +115,25 @@
       tags:
         - pacman
 
+    - name: 2.1] 更改本地化设置 [Update locale.gen
+      become: yes
+      lineinfile:
+        path: /etc/locale.gen
+        regexp: '^#zh_CN.UTF-8 UTF-8'
+        line: 'zh_CN.UTF-8 UTF-8'
+      register: locale_gen_update
+      tags:
+        - locale
+        - setup
+
+    - name: 2.2] 更新本地化配置 [Re-generate locale-gen
+      become: yes
+      command: locale-gen
+      when: locale_gen_update.changed
+      tags:
+        - locale
+        - setup
+
     - name: 4.1] 安装字体 [Install fonts
       become: yes
       become_user: aur_builder
@@ -282,6 +301,6 @@
         dest: "~/.setup"
         update: yes
         force: yes
-      when: setup_folder.stat.exists == False
+      # when: setup_folder.stat.exists == False
       tags:
         - clone
