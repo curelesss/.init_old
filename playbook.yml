@@ -134,6 +134,16 @@
         - locale
         - setup
 
+    - name: Ensure locale settings are applied
+    shell: |
+      export LANG=zh_CN.UTF-8
+      locale
+    register: locale_settings
+
+    - name: Display locale settings
+    debug:
+      msg: "{{ locale_settings.stdout }}"
+
     - name: 4.1] 安装字体 [Install fonts
       become: yes
       become_user: aur_builder
