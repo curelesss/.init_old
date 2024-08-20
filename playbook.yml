@@ -165,7 +165,6 @@
         state: present
       tags:
         - ssh
-        - github
 
     - name: 4] Set Grub to Output System Loading Info
       become: yes
