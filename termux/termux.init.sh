@@ -12,5 +12,4 @@ pkg install rust
 export CARGO_BUILD_TARGET=aarch64-linux-android
 apt install python-cryptography
 pip install ansible
-pkg install git
 
