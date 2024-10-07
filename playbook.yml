@@ -252,8 +252,8 @@
 
     - name: 6] [Clone .setup repository
       git:
-        repo: git@github.com:curelesss/.setup.git
-        dest: "~/.setup"
+        repo: git@github.com:curelesss/.dotfiles.git
+        dest: "~/.dotfiles"
         update: yes
         force: yes
       # when: setup_folder.stat.exists == False
